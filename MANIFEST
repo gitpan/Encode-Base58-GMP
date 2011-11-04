@@ -1,0 +1,10 @@
+LICENSE
+MANIFEST
+META.yml
+Makefile.PL
+README
+dist.ini
+lib/Encode/Base58/GMP.pm
+t/00_compile.t
+t/01_base58gmp.t
+t/encode-decode.t

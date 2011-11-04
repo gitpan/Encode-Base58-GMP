@@ -1,0 +1,23 @@
+---
+abstract: 'High speed Base58 encodings using GMP with BigInt Support'
+author:
+  - 'John Wang <jwang@cpan.org>'
+build_requires:
+  Test::Base: 0
+  Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300002, CPAN::Meta::Converter version 2.112150'
+license: mit
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Encode-Base58-GMP
+requires:
+  Exporter: 0
+  Math::GMPz: 0
+  base: 0
+  perl: 5.008_001
+  strict: 0
+version: 0.01
