@@ -1,5 +1,5 @@
 ---
-abstract: 'High speed Base58 encodings using GMP with BigInt Support'
+abstract: 'High speed Base58 encoding using GMP with BigInt support'
 author:
   - 'John Wang <jwang@cpan.org>'
 build_requires:
@@ -20,4 +20,5 @@ requires:
   base: 0
   perl: 5.008_001
   strict: 0
-version: 0.02
+  warnings: 0
+version: 0.03

@@ -1,9 +1,9 @@
 
 
 This archive contains the distribution Encode-Base58-GMP,
-version 0.02:
+version 0.03:
 
-  High speed Base58 encodings using GMP with BigInt Support
+  High speed Base58 encoding using GMP with BigInt support
 
 This software is Copyright (c) 2011 by John Wang.
 

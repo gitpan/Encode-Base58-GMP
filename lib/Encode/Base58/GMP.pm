@@ -1,9 +1,10 @@
 package Encode::Base58::GMP;
 use strict;
+use warnings;
 use 5.008_001;
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
-use base qw(Exporter);
+use base qw( Exporter );
 our @EXPORT	= qw( encode_base58 decode_base58 );
 our @EXPORT_OK	= qw( base58_flickr_to_gmp base58_gmp_to_flickr );
 
@@ -49,11 +50,11 @@ sub base58_flickr_to_gmp {
 
 1;
 
-# ABSTRACT: High speed Base58 encodings using GMP with BigInt Support
+# ABSTRACT: High speed Base58 encoding using GMP with BigInt support
 
 =head1 NAME
 
-Encode::Base58::GMP - High speed Base58 encodings using GMP with BigInt Support
+Encode::Base58::GMP - High speed Base58 encoding using GMP with BigInt support
 
 =head1 SYNOPSIS
 
@@ -61,13 +62,13 @@ Encode::Base58::GMP - High speed Base58 encodings using GMP with BigInt Support
 
 	# Decimal Conversion
 
-	$base58		= encode_base58( $decimal );
-	$decimal	= decode_base58( $base58 );
+	$base58			= encode_base58( $decimal );
+	$decimal		= decode_base58( $base58 );
 
 	# Hexidecimal (and Arbitrary Base) Conversion
 
-	$base58		= encode_base58( $hex_string, 16 );
-	$hex_string	= decode_base58( $base58, 16 );
+	$base58			= encode_base58( $hex_string, 16 );
+	$hex_string		= decode_base58( $base58, 16 );
 
 	# Using GMP Base58 Strings ( Standard is Flickr )
 
@@ -107,15 +108,21 @@ If $base is included, the number is returned is encoded as such.
 
 =head2 base58_flickr_to_gmp( $base58_as_flickr )
 
-This routine converts a Flickr Base58 string to a GMP Base58 string.
+This routine converts a Flickr Base58 string to a GMP Base58 string. This
+routine is not exported by default.
 
 =head2 base58_gmp_to_flickr( $base58_as_gmp )
 
-This routine converts a GMP Base58 string to a Flickr Base58 string.
+This routine converts a GMP Base58 string to a Flickr Base58 string. This
+routine is not exported by default.
 
 =head1 SEE ALSO
 
-L<Encode::Base58>, L<Encode::Base58::BigInt>, L<Math-GMPz>, L<Digest-MD5>
+L<Encode::Base58>, L<Encode::Base58::BigInt>, L<Math::GMPz>
+
+L<http://www.flickr.com/groups/api/discuss/72157616713786392/>
+
+L<http://marcus.bointon.com/archives/92-PHP-Base-62-encoding.html> (Base62 with GMP in PHP)
 
 =head1 AUTHOR
 
