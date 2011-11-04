@@ -1,7 +1,7 @@
 
 
 This archive contains the distribution Encode-Base58-GMP,
-version 0.01:
+version 0.02:
 
   High speed Base58 encodings using GMP with BigInt Support
 
