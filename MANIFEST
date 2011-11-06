@@ -6,5 +6,6 @@ README
 dist.ini
 lib/Encode/Base58/GMP.pm
 t/00_compile.t
-t/01_base58gmp.t
-t/encode-decode.t
+t/01_encode-decode.t
+t/02_encode-decode-2.t
+t/03_md5-base58.t

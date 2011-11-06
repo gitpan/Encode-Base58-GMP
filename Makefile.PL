@@ -9,7 +9,7 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  "ABSTRACT" => "High speed Base58 encoding using GMP with BigInt support",
+  "ABSTRACT" => "High speed Base58 encoding using GMP with BigInt and MD5 support",
   "AUTHOR" => "John Wang <jwang\@cpan.org>",
   "BUILD_REQUIRES" => {
     "Test::Base" => 0,
@@ -23,13 +23,14 @@ my %WriteMakefileArgs = (
   "LICENSE" => "mit",
   "NAME" => "Encode::Base58::GMP",
   "PREREQ_PM" => {
+    "Digest::MD5" => 0,
     "Exporter" => 0,
     "Math::GMPz" => 0,
     "base" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.03",
+  "VERSION" => "0.04",
   "test" => {
     "TESTS" => "t/*.t"
   }
