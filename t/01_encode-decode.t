@@ -4,12 +4,25 @@ use Encode::Base58::GMP;
 plan tests => 2 * blocks;
 
 run {
-    my $block = shift;
-    is encode_base58($block->number), $block->short;
-    is decode_base58($block->short), $block->number;
+  my $block = shift;
+  is encode_base58($block->number,$block->alphabet), $block->short;
+  is int decode_base58($block->short,$block->alphabet), $block->number;
 };
 
 __DATA__
+===
+--- short: 2
+--- number: 1
+
+===
+--- short: 2
+--- number: 2
+--- alphabet: gmp
+
+===
+--- short: nrkMyzsS7w7
+--- number: 9235113611380768826
+
 ===
 --- short: 6hKMCS
 --- number: 3471391110

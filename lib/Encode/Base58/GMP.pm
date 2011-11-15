@@ -2,59 +2,51 @@ package Encode::Base58::GMP;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION	= '0.04';
+our $VERSION   = '0.05';
 
-use base	qw( Exporter );
-our @EXPORT	= qw( encode_base58 decode_base58 );
-our @EXPORT_OK	= qw( base58_flickr_to_gmp base58_gmp_to_flickr md5_base58 );
+use base         qw(Exporter);
+our @EXPORT    = qw(encode_base58 decode_base58);
+our @EXPORT_OK = qw(base58_flickr_to_gmp base58_gmp_to_flickr md5_base58);
 
-use Digest::MD5	qw( md5_hex );
-use Math::GMPz	qw( :mpz );
+use Digest::MD5  qw(md5_hex);
+use Math::GMPz   qw(:mpz);
 
 sub encode_base58 {
+  my ($num, $alphabet) = @_;
 
-	my ( $num, $base, $use_gmp ) = @_;
+  my $base58 = ref($num) && $num->isa('Math::GMPz') ?
+    Rmpz_get_str($num, 58) :
+    Rmpz_get_str(Math::GMPz->new($num), 58);
 
-	$base		= 10 unless $base && $base =~ /^[0-9]+$/;
-
-	my $base58	= Rmpz_get_str( Rmpz_init_set_str( $num, $base ), 58 );
-
-	$use_gmp	? $base58 : base58_gmp_to_flickr( $base58 );
+  $alphabet && lc $alphabet eq 'gmp' ?
+    $base58 :
+    base58_gmp_to_flickr($base58);
 }
 
 sub decode_base58 { 
+  my ($base58, $alphabet) = @_;
 
-	my ( $base58, $base, $use_gmp ) = @_;
+  unless ($alphabet && lc $alphabet eq 'gmp') {
+    $base58 = base58_flickr_to_gmp($base58) 
+  }
 
-	$base		= 10 unless $base && $base =~ /^[0-9]+$/;
-
-	$base58		= base58_flickr_to_gmp( $base58 ) unless $use_gmp;
-
-	Rmpz_get_str( Rmpz_init_set_str( $base58, 58 ), $base );
+  Math::GMPz->new($base58, 58);
 }
 
 sub base58_gmp_to_flickr {
-
-	my $base58	= shift||'';
-
-	$base58		=~ tr|0-89A-JK-XYZa-fg-kl-v|1-9ab-km-zABC-HJ-NP-Z|;
-
-	$base58;
+  my $base58 = shift||'';
+  $base58    =~ y|0-89A-JK-XYZa-fg-kl-v|1-9ab-km-zABC-HJ-NP-Z|;
+  $base58;
 }
 
 sub base58_flickr_to_gmp {
-
-	my $base58	= shift||'';
-
-	$base58		=~ tr|1-9ab-km-zABC-HJ-NP-Z|0-89A-JK-XYZa-fg-kl-v|;
-
-	$base58;
+  my $base58 = shift||'';
+  $base58    =~ y|1-9ab-km-zABC-HJ-NP-Z|0-89A-JK-XYZa-fg-kl-v|;
+  $base58;
 }
 
 sub md5_base58 {
-
-	encode_base58( md5_hex( shift ), 16, shift );
-
+  encode_base58('0x'.md5_hex(shift), shift);
 }
 
 1;
@@ -67,56 +59,61 @@ Encode::Base58::GMP - High speed Base58 encoding using GMP with BigInt and MD5 s
 
 =head1 SYNOPSIS
 
-	use Encode::Base58::GMP;
+  use Encode::Base58::GMP;
 
-	# Decimal Conversion
+  # Encode Integer as Base58
+  encode_base58(12345);                        # => 4ER string
+  encode_base58('0x3039');                     # => 4ER string
+  encode_base58(Math::GPMz->new('0x3039'));    # => 4ER string
 
-	$base58			= encode_base58( $decimal );
-	$decimal		= decode_base58( $base58 );
+  # Encode Integer as Base58 using GMP alphabet
+  encode_base58(12345,'gmp')                   # => 3cn string
 
-	# Hexidecimal (and Arbitrary Base) Conversion
+  # Decode Base58 as Math::GMPz Integer
+  decode_base58('4ER');                        # => 12345 Math::GMPz object
+  int decode_base58('4ER');                    # => 12345 integer
 
-	$base58			= encode_base58( $hex_string, 16 );
-	$hex_string		= decode_base58( $base58, 16 );
+  # Decode Base58 as Math::GMPz Integer using GMP alphabet
+  decode_base58('3cn','gmp');                  # => 12345 Math::GMPz object
 
-	# Using GMP Base58 Strings ( Standard is Flickr )
+  # MD5 Base58 Digest
+  $md5_base58 = md5_base58('foo@bar.com');     # => w6fdCRXnUXyz7EtDn5TgN9
 
-	$base58_as_gmp		= encode_base58( $decimal, undef, 1 );
-	$decimal		= decode_base58( $base58_as_gmp, undef, 1 );
-
-	# Convert between Flickr and GMP
-
-	$base58_as_gmp		= base58_flickr_to_gmp( $base58_as_flickr );
-	$base58_as_flickr	= base58_gmp_to_flickr( $base58_as_gmp );
-
-	# Create a Base58 encoded MD5 digest
-
-	$md5_base58		= md5_base58( $data );
+  # Convert between Flickr and GMP
+  base58_flickr_to_gmp('123456789abcdefghijk') # => 0123456789ABCDEFGHIJ
+  base58_gmp_to_flickr('0123456789ABCDEFGHIJ') # => 123456789abcdefghijk
 
 =head1 DESCRIPTION
 
-Encode::Base58::GMP is a base58 encoder/decoder implementation using The GNU
+Encode::Base58::GMP is a Base58 encoder/decoder implementation using the GNU
 Multiple Precision Arithmetic Library (GMP) with transcoding between
 GMP and Flickr Base58 implementations.
 
-The default (aka Flickr) usage excludes [0OIl] to improve human readability.
+The default (aka Flickr) implementation is a modification of the [0-9a-zA-Z]
+Base62 alphabet excluding [0OIl] to improve human readability.
 
-The GMP implementation uses the [0-9A-Za-v] character set.
+The GMP implementation uses the [0-9A-Za-v] alphabet.
 
 A md5_base58 function is included to provide MD5 digests.
 
+=head2 Requirements
+
+This module requires GMP 4.2.0 and above. Prior versions are limited to Base36.
+
 =head1 FUNCTIONS
 
-=head2 encode_base58 ( $number [, $base, $use_gmp ] )
+=head2 encode_base58 ( $number [, $alphabet ] )
 
-This routine encodes a $number in Base58. By default, a decimal number is
-assumed. If $base is included, the number is treated as a string
-representation in that encoding, e.g. 16 for hexadecimal, 10 for decimal.
+This routine encodes a $number in Base58. $number can be a Math::GMPz object
+or a binary, octal, decimal or hexidecimal number. Binary, octal and hexidecimal
+string literals must be prefixed with 0[Bb]/0/0[Xx] respectively. The Flickr
+alphabet is used unless $alphabet is set to 'gmp'.
 
-=head2 decode_base58 ( $base58 [, $base, $use_gmp ] )
+=head2 decode_base58 ( $base58 [, $alphabet ] )
 
-This routine decodes a Base58 value and returns a decimal number by default.
-If $base is included, the number is returned is encoded as such.
+This routine decodes a Base58 value and returns a Math::GMPz object. Use int
+on the return value to convert the Math::GMPz object to an integer.
+The Flickr alphabet is used unless $alphabet is set to 'gmp'.
 
 =head2 base58_flickr_to_gmp( $base58_as_flickr )
 
@@ -128,7 +125,7 @@ routine is not exported by default.
 This routine converts a GMP Base58 string to a Flickr Base58 string. This
 routine is not exported by default.
 
-=head2 md5_base58( $data [, $use_gmp ] )
+=head2 md5_base58( $data [, $alphabet ] )
 
 This routine returns a MD5 digest in Base58. This routine is not exported
 by default.
@@ -139,15 +136,17 @@ L<Encode::Base58>, L<Encode::Base58::BigInt>, L<Math::GMPz>, L<Digest::MD5>
 
 L<http://www.flickr.com/groups/api/discuss/72157616713786392/>
 
-L<http://marcus.bointon.com/archives/92-PHP-Base-62-encoding.html> (Base62 with GMP in PHP)
+L<https://rubygems.org/gems/base58_gmp> (Base58 using GMP in Ruby)
+
+L<http://marcus.bointon.com/archives/92-PHP-Base-62-encoding.html> (Base62 using GMP in PHP)
 
 =head1 AUTHOR
 
-John Wang <john@johnwang.com>
+John Wang <johncwang@gmail.com>
 
 =head1 COPYRIGHT AND LICENSE (The MIT License)
 
-Copyright (c) 2011 John Wang <john@johnwang.com>
+Copyright (c) 2011 John Wang
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
