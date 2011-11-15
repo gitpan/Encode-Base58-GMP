@@ -2,7 +2,7 @@ package Encode::Base58::GMP;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION   = '0.05';
+our $VERSION   = '0.06';
 
 use base         qw(Exporter);
 our @EXPORT    = qw(encode_base58 decode_base58);
@@ -61,23 +61,23 @@ Encode::Base58::GMP - High speed Base58 encoding using GMP with BigInt and MD5 s
 
   use Encode::Base58::GMP;
 
-  # Encode Integer as Base58
+  # Encode Int as Base58
   encode_base58(12345);                        # => 4ER string
   encode_base58('0x3039');                     # => 4ER string
   encode_base58(Math::GPMz->new('0x3039'));    # => 4ER string
 
-  # Encode Integer as Base58 using GMP alphabet
+  # Encode Int as Base58 using GMP alphabet
   encode_base58(12345,'gmp')                   # => 3cn string
 
-  # Decode Base58 as Math::GMPz Integer
+  # Decode Base58 as Math::GMPz Int
   decode_base58('4ER');                        # => 12345 Math::GMPz object
   int decode_base58('4ER');                    # => 12345 integer
 
-  # Decode Base58 as Math::GMPz Integer using GMP alphabet
+  # Decode Base58 as Math::GMPz Int using GMP alphabet
   decode_base58('3cn','gmp');                  # => 12345 Math::GMPz object
 
   # MD5 Base58 Digest
-  $md5_base58 = md5_base58('foo@bar.com');     # => w6fdCRXnUXyz7EtDn5TgN9
+  md5_base58('foo@bar.com');                   # => w6fdCRXnUXyz7EtDn5TgN9
 
   # Convert between Flickr and GMP
   base58_flickr_to_gmp('123456789abcdefghijk') # => 0123456789ABCDEFGHIJ
@@ -142,7 +142,7 @@ L<http://marcus.bointon.com/archives/92-PHP-Base-62-encoding.html> (Base62 using
 
 =head1 AUTHOR
 
-John Wang <johncwang@gmail.com>
+John Wang <johncwang@gmail.com>, L<http://johnwang.com> 
 
 =head1 COPYRIGHT AND LICENSE (The MIT License)
 

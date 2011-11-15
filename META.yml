@@ -1,7 +1,7 @@
 ---
 abstract: 'High speed Base58 encoding using GMP with BigInt and MD5 support'
 author:
-  - 'John Wang <jwang@cpan.org>'
+  - 'John Wang <johncwang@gmail.com>'
 build_requires:
   Test::Base: 0
   Test::More: 0
@@ -22,4 +22,4 @@ requires:
   perl: 5.008_001
   strict: 0
   warnings: 0
-version: 0.05
+version: 0.06
