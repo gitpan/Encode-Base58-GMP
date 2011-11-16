@@ -26,11 +26,12 @@ my %WriteMakefileArgs = (
     "Digest::MD5" => 0,
     "Exporter" => 0,
     "Math::GMPz" => 0,
+    "Scalar::Util" => 0,
     "base" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.06",
+  "VERSION" => "0.07",
   "test" => {
     "TESTS" => "t/*.t"
   }

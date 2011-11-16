@@ -2,21 +2,22 @@ package Encode::Base58::GMP;
 use strict;
 use warnings;
 use 5.008_001;
-our $VERSION   = '0.06';
+our $VERSION   = '0.07';
 
 use base         qw(Exporter);
 our @EXPORT    = qw(encode_base58 decode_base58);
 our @EXPORT_OK = qw(base58_flickr_to_gmp base58_gmp_to_flickr md5_base58);
 
 use Digest::MD5  qw(md5_hex);
-use Math::GMPz   qw(:mpz);
+use Math::GMPz   qw(Rmpz_get_str);
+use Scalar::Util qw(blessed);
 
 sub encode_base58 {
-  my ($num, $alphabet) = @_;
+  my ($int, $alphabet) = @_;
 
-  my $base58 = ref($num) && $num->isa('Math::GMPz') ?
-    Rmpz_get_str($num, 58) :
-    Rmpz_get_str(Math::GMPz->new($num), 58);
+  my $base58 = blessed($int) && $int->isa('Math::GMPz') ?
+    Rmpz_get_str($int, 58) :
+    Rmpz_get_str(Math::GMPz->new($int), 58);
 
   $alphabet && lc $alphabet eq 'gmp' ?
     $base58 :
@@ -64,7 +65,7 @@ Encode::Base58::GMP - High speed Base58 encoding using GMP with BigInt and MD5 s
   # Encode Int as Base58
   encode_base58(12345);                        # => 4ER string
   encode_base58('0x3039');                     # => 4ER string
-  encode_base58(Math::GPMz->new('0x3039'));    # => 4ER string
+  encode_base58(Math::GMPz->new('0x3039'));    # => 4ER string
 
   # Encode Int as Base58 using GMP alphabet
   encode_base58(12345,'gmp')                   # => 3cn string

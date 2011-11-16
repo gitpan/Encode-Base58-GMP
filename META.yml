@@ -18,8 +18,9 @@ requires:
   Digest::MD5: 0
   Exporter: 0
   Math::GMPz: 0
+  Scalar::Util: 0
   base: 0
   perl: 5.008_001
   strict: 0
   warnings: 0
-version: 0.06
+version: 0.07
