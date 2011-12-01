@@ -12,6 +12,7 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "High speed Base58 encoding using GMP with BigInt and MD5 support",
   "AUTHOR" => "John Wang <johncwang\@gmail.com>",
   "BUILD_REQUIRES" => {
+    "Config" => 0,
     "Test::Base" => 0,
     "Test::More" => 0
   },
@@ -31,7 +32,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.07",
+  "VERSION" => "0.08",
   "test" => {
     "TESTS" => "t/*.t"
   }

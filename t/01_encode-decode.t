@@ -20,10 +20,6 @@ __DATA__
 --- alphabet: gmp
 
 ===
---- short: nrkMyzsS7w7
---- number: 9235113611380768826
-
-===
 --- short: 6hKMCS
 --- number: 3471391110
 
