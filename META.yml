@@ -21,7 +21,7 @@ requires:
   Math::GMPz: 0
   Scalar::Util: 0
   base: 0
-  perl: 5.008_001
+  perl: 5.008_009
   strict: 0
   warnings: 0
-version: 0.08
+version: 0.09

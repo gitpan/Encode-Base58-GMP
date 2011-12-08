@@ -1,8 +1,8 @@
 package Encode::Base58::GMP;
 use strict;
 use warnings;
-use 5.008_001;
-our $VERSION   = '0.08';
+use 5.008_009;
+our $VERSION   = '0.09';
 
 use base         qw(Exporter);
 our @EXPORT    = qw(encode_base58 decode_base58);
@@ -100,6 +100,10 @@ A md5_base58 function is included to provide MD5 digests.
 =head2 Requirements
 
 This module requires GMP 4.2.0 and above. Prior versions are limited to Base36.
+
+Perl 5.8.9 or above is required to ensure proper bigint handling. If you are not
+using bigint numbers, it may be possible to skip the bigint tests and do a force
+install; however, lower Perl versions are not supported.
 
 =head1 FUNCTIONS
 
