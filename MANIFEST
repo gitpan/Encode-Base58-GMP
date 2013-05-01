@@ -11,3 +11,5 @@ t/02_encode-decode-2.t
 t/03_md5-base58.t
 t/03_md5-base58.tb
 t/04_bigint.t
+t/05_from-to.t
+t/06_flickr-gmp.t

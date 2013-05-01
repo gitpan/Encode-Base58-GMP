@@ -2,52 +2,94 @@ package Encode::Base58::GMP;
 use strict;
 use warnings;
 use 5.008_009;
-our $VERSION   = '0.09';
+our $VERSION   = '1.00';
 
 use base         qw(Exporter);
 our @EXPORT    = qw(encode_base58 decode_base58);
-our @EXPORT_OK = qw(base58_flickr_to_gmp base58_gmp_to_flickr md5_base58);
+our @EXPORT_OK = qw(base58_from_to base58_flickr_to_gmp base58_gmp_to_flickr md5_base58);
 
+use Carp;
 use Digest::MD5  qw(md5_hex);
 use Math::GMPz   qw(Rmpz_get_str);
 use Scalar::Util qw(blessed);
 
 sub encode_base58 {
-  my ($int, $alphabet) = @_;
+  my ($int, $alphabet, $len) = @_;
 
   my $base58 = blessed($int) && $int->isa('Math::GMPz') ?
     Rmpz_get_str($int, 58) :
     Rmpz_get_str(Math::GMPz->new($int), 58);
 
+  if ($len && $len =~ m|\A[0-9]+\Z|) {
+    $base58 = sprintf("%0${len}s",$base58);
+  }
+
   $alphabet && lc $alphabet eq 'gmp' ?
     $base58 :
-    base58_gmp_to_flickr($base58);
+    base58_from_to($base58,'gmp',$alphabet||'flickr');
 }
 
 sub decode_base58 { 
   my ($base58, $alphabet) = @_;
 
   unless ($alphabet && lc $alphabet eq 'gmp') {
-    $base58 = base58_flickr_to_gmp($base58) 
+    $base58 = base58_from_to($base58,$alphabet||'flickr','gmp');
   }
 
   Math::GMPz->new($base58, 58);
 }
 
+sub base58_from_to {
+  my ($base58, $from_alphabet, $to_alphabet) = @_;
+
+  my $alphabets = {
+    bitcoin => '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz',
+    flickr  => '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ',
+    gmp     => '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv'
+  };
+
+  $from_alphabet = lc($from_alphabet||'flickr');
+  $to_alphabet   = lc($to_alphabet  ||'flickr');
+
+  return $base58 if $from_alphabet eq $to_alphabet;
+
+  my $from_digits = $alphabets->{$from_alphabet}
+    or croak("Encode::Base58::GMP::from_to called with invalid from_alphabet [$from_alphabet]");
+  my $to_digits   = $alphabets->{$to_alphabet}
+    or croak("Encode::Base58::GMP::from_to called with invalid to_alphabet [$to_alphabet]");
+
+  if ($from_alphabet eq 'gmp') {
+    if ($to_alphabet eq 'flickr') {
+      $base58 =~ y|0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv|123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ|;
+    } else {
+      $base58 =~ y|0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv|123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz|;
+    }
+  } elsif ($from_alphabet eq 'flickr') {
+    if ($to_alphabet eq 'gmp') {
+      $base58 =~ y|123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ|0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv|;
+    } else {
+      $base58 =~ y|123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ|123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz|;
+    }
+  } else {
+    if ($to_alphabet eq 'gmp') {
+      $base58 =~ y|123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz|0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuv|;
+    } else {
+      $base58 =~ y|123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz|123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ|;
+    }
+  }
+  return $base58;
+}
+
 sub base58_gmp_to_flickr {
-  my $base58 = shift||'';
-  $base58    =~ y|0-89A-JK-XYZa-fg-kl-v|1-9ab-km-zABC-HJ-NP-Z|;
-  $base58;
+  return base58_from_to(shift||'','gmp','flickr');
 }
 
 sub base58_flickr_to_gmp {
-  my $base58 = shift||'';
-  $base58    =~ y|1-9ab-km-zABC-HJ-NP-Z|0-89A-JK-XYZa-fg-kl-v|;
-  $base58;
+  return base58_from_to(shift||'','flickr','gmp');
 }
 
 sub md5_base58 {
-  encode_base58('0x'.md5_hex(shift), shift);
+  encode_base58('0x'.md5_hex(shift), shift, 22);
 }
 
 1;
@@ -57,6 +99,8 @@ sub md5_base58 {
 =head1 NAME
 
 Encode::Base58::GMP - High speed Base58 encoding using GMP with BigInt and MD5 support
+
+For version 1.0 upgrades, please read the INCOMPATIBLE CHANGES section below.
 
 =head1 SYNOPSIS
 
@@ -68,19 +112,25 @@ Encode::Base58::GMP - High speed Base58 encoding using GMP with BigInt and MD5 s
   encode_base58(Math::GMPz->new('0x3039'));    # => 4ER string
 
   # Encode Int as Base58 using GMP alphabet
-  encode_base58(12345,'gmp')                   # => 3cn string
+  encode_base58(12345,'bitcoin');              # => 4fr string
+  encode_base58(12345,'gmp');                  # => 3cn string
 
   # Decode Base58 as Math::GMPz Int
   decode_base58('4ER');                        # => 12345 Math::GMPz object
   int decode_base58('4ER');                    # => 12345 integer
 
   # Decode Base58 as Math::GMPz Int using GMP alphabet
+  decode_base58('4fr','bitcoin');              # => 12345 Math::GMPz object
   decode_base58('3cn','gmp');                  # => 12345 Math::GMPz object
 
   # MD5 Base58 Digest
   md5_base58('foo@bar.com');                   # => w6fdCRXnUXyz7EtDn5TgN9
 
-  # Convert between Flickr and GMP
+  # Convert between alphabets for Bitcoin, Flickr and GMP
+  base58_from_to('123456789abcdefghijk','flickr','gmp') # => 0123456789ABCDEFGHIJ
+  base58_from_to('0123456789ABCDEFGHIJ','gmp','flickr') # => 123456789abcdefghijk
+
+  # Convert between Flickr and GMP - Deprecated
   base58_flickr_to_gmp('123456789abcdefghijk') # => 0123456789ABCDEFGHIJ
   base58_gmp_to_flickr('0123456789ABCDEFGHIJ') # => 123456789abcdefghijk
 
@@ -88,14 +138,18 @@ Encode::Base58::GMP - High speed Base58 encoding using GMP with BigInt and MD5 s
 
 Encode::Base58::GMP is a Base58 encoder/decoder implementation using the GNU
 Multiple Precision Arithmetic Library (GMP) with transcoding between
-GMP and Flickr Base58 implementations.
+Flickr, Bitcoin and GMP Base58 implementations. The Flickr alphabet is the
+default and used when no alphabet is provided.
 
-The default (aka Flickr) implementation is a modification of the [0-9a-zA-Z]
-Base62 alphabet excluding [0OIl] to improve human readability.
+Flickr Alphabet: [0-9a-zA-Z] excluding [0OIl] to improve human readability
 
-The GMP implementation uses the [0-9A-Za-v] alphabet.
+Bitcoin Alphabet: [0-9A-Za-z] excluding [0OIl] to improve human readability
 
-A md5_base58 function is included to provide MD5 digests.
+GMP Alphabet: [0-9A-Za-v]
+
+The encode_base58, decode_base58 and md5_base58 methods support an alphabet
+parameter which can be set to the supported alphabets ['bitcoin', 'flickr',
+'gmp'] to indicate the value to be encoded or decoded.
 
 =head2 Requirements
 
@@ -120,6 +174,11 @@ This routine decodes a Base58 value and returns a Math::GMPz object. Use int
 on the return value to convert the Math::GMPz object to an integer.
 The Flickr alphabet is used unless $alphabet is set to 'gmp'.
 
+=head2 base58_from_to( $base58, $from_alphabet, $to_alphabet )
+
+This routine encodes a Base58 string from one encoding to another encoding.
+This routing is not exported by default.
+
 =head2 base58_flickr_to_gmp( $base58_as_flickr )
 
 This routine converts a Flickr Base58 string to a GMP Base58 string. This
@@ -134,6 +193,22 @@ routine is not exported by default.
 
 This routine returns a MD5 digest in Base58. This routine is not exported
 by default.
+
+=head1 CHANGES
+
+=item 1.00 April 30, 2013
+
+Add Bitcoin alphabet support.
+
+Add zero-padding for md5_base58. This is an incompatible change from version
+0.09.
+
+=head1 INCOMPATIBLE CHANGES
+
+=item 1.00 April 30, 2013
+
+md5_base58 is now zero-padded to provide a fixed-length Base58 string. Prior
+versions were not padding with leading zero values.
 
 =head1 SEE ALSO
 
@@ -151,7 +226,7 @@ John Wang <johncwang@gmail.com>, L<http://johnwang.com>
 
 =head1 COPYRIGHT AND LICENSE (The MIT License)
 
-Copyright (c) 2011 John Wang
+Copyright (c) 2011-2013 John Wang
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

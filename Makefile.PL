@@ -24,6 +24,7 @@ my %WriteMakefileArgs = (
   "LICENSE" => "mit",
   "NAME" => "Encode::Base58::GMP",
   "PREREQ_PM" => {
+    "Carp" => 0,
     "Digest::MD5" => 0,
     "Exporter" => 0,
     "Math::GMPz" => 0,
@@ -32,7 +33,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.09",
+  "VERSION" => "1.00",
   "test" => {
     "TESTS" => "t/*.t"
   }

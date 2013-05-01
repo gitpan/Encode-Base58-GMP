@@ -20,6 +20,21 @@ __DATA__
 --- alphabet: gmp
 
 ===
+--- short: 4fr
+--- number: 12345
+--- alphabet: bitcoin
+
+===
+--- short: 4ER
+--- number: 12345
+--- alphabet: flickr
+
+===
+--- short: 3cn
+--- number: 12345
+--- alphabet: gmp
+
+===
 --- short: 6hKMCS
 --- number: 3471391110
 

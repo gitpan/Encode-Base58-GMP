@@ -9,13 +9,14 @@ build_requires:
 configure_requires:
   ExtUtils::MakeMaker: 6.30
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300002, CPAN::Meta::Converter version 2.112150'
+generated_by: 'Dist::Zilla version 4.300008, CPAN::Meta::Converter version 2.120351'
 license: mit
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
 name: Encode-Base58-GMP
 requires:
+  Carp: 0
   Digest::MD5: 0
   Exporter: 0
   Math::GMPz: 0
@@ -24,4 +25,4 @@ requires:
   perl: 5.008_009
   strict: 0
   warnings: 0
-version: 0.09
+version: 1.00
